@@ -16,10 +16,11 @@ do
 	echo "repo = "$repo
 	#get local branch name
 	branch="$(git --git-dir=${repo} symbolic-ref -q --short HEAD)"
-	echo "git pull origin branch " $branch
+	echo "git pull origin " $branch
 	git --git-dir=${repo} --work-tree=$repo/.. pull origin $branch
 
-
 done
+
+
 
 
