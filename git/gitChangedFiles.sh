@@ -58,9 +58,9 @@ untrackedFiles=$(git status -s $DIR| awk '$1 !~/[MD]/ {print $2}')
 #echo "============================================="
 ignoredFiles=()
 ignoredFiles[0]="*.patch "
-ignoredFiles[1]="$(basename $0)"
-ignoredFiles[2]="gitChangedFiles.sh"
-# echo "ignoredFiles =  ${ignoredFiles[@]}"
+ignoredFiles[1]="$(basename ${BASH_SOURCE[0]})"
+ignoredFiles[2]="gitScpfile.sh"
+echo "ignoredFiles =  ${ignoredFiles[@]}"
 
 fileIsIgnored() {
     result=0
@@ -138,7 +138,7 @@ for file in $deletedFiles; do
     filedir=${file%$tmp}
 
     if [ ! -d "$oldpath/$filedir" ]; then
-        echo "${bold}${yellow}$oldpath/$filedir"
+        echo "${bold}${magenta}$oldpath/$filedir"
         mkdir -p $oldpath/$filedir
     fi 
     git checkout $file 
