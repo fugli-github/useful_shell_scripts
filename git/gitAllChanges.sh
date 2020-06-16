@@ -46,8 +46,8 @@ for file in $allFiles; do
 done
 
 
-newpath=new_$(date +%s)
-oldpath=old_$(date +%s)
+newpath=new_$(date +%Y%m%d-%H%M%S)
+oldpath=old_$(date +%Y%m%d-%H%M%S)
 mkdir $newpath
 mkdir $oldpath
 chmod -R 777 $newpath

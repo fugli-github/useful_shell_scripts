@@ -89,8 +89,8 @@ echo "new added files:--------->"
 echo "${bold}${yellow}${newAddfile[@]}"
 echo "${normal}============================================="
 
-newpath=new_$(date +%s)
-oldpath=old_$(date +%s)
+newpath=new_$(date +%Y%m%d-%H%M%S--$RANDOM)
+oldpath=old_$(date +%Y%m%d-%H%M%S--$RANDOM)
 mkdir $newpath
 mkdir $oldpath
 chmod -R 777 $newpath
