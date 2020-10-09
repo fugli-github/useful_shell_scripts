@@ -1,4 +1,20 @@
 #!/bin/bash
+#set -exuo pipefail
+
+fileType=${1:-""}
+
+display_help() {
+    echo "
+////////////////////////////////////////////////////////
+    Usage: $(basename $0) [fileType]
+    fileType : -c change 
+               -n new
+               -d delete
+               -a all
+////////////////////////////////////////////////////////
+    "
+}
+
 
 # color setting
 bold=${FORCE_COLOR_BOLD:-""}
@@ -89,19 +105,60 @@ echo "${normal}============================================="
 
 # scp files to server
 user="fugli"
-server=${user}@ouling46.emea.nsn-net.net
+#server=${user}@ouling46.emea.nsn-net.net
+server=${user}@10.157.99.37
 workspace=/var/fpwork/${user}/docker_workspace/l1low
 
-for file in $changedFiles; do
+
+ScpAllFils() {
+    for file in $changedFiles; do
     scp $file ${server}:${workspace}/${file}
-done
+    done
 
-for file in ${newAddfile[@]}; do
-    scp $file ${server}:${workspace}/${file}    
-done
+    for file in ${newAddfile[@]}; do
+        scp $file ${server}:${workspace}/${file}    
+    done
 
-echo "login server and delete files"
-echo "===================================="
-for file in ${deletedFiles}; do 
-    ssh -t ${server} "cd ${workspace}; rm ${file} " 
-done
+    echo "login server and delete files"
+    echo "===================================="
+    for file in ${deletedFiles}; do 
+        ssh -t ${server} "cd ${workspace}; rm ${file} " 
+    done
+}
+
+if [[ "${fileType}" == "" ]] ; then
+    display_help
+    exit 0
+fi
+
+echo "${bold}${green}fileType is $fileType ${normal}"
+
+case $fileType in
+    "-c" )
+        for file in $changedFiles; do
+        scp $file ${server}:${workspace}/${file}
+        done
+        ;;
+    "-n" )
+        for file in ${newAddfile[@]}; do
+            scp $file ${server}:${workspace}/${file}    
+        done
+        ;;
+    "-d" )
+        echo "login server and delete files"
+        echo "===================================="
+        for file in ${deletedFiles}; do 
+            ssh -t ${server} "cd ${workspace}; rm ${file} " 
+        done
+        ;;
+    "-a" )
+        ScpAllFils
+        ;;
+    *)
+        for file in $*; do
+            scp $file ${server}:${workspace}/${file}
+        done
+        ;;
+esac
+
+
