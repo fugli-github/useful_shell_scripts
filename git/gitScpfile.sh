@@ -104,7 +104,7 @@ echo "${bold}${yellow}${newAddfile[@]}"
 echo "${normal}============================================="
 
 # scp files to server
-user="fugli"
+user=$(whoami)
 #server=${user}@ouling46.emea.nsn-net.net
 server=${user}@10.157.99.37
 workspace=/var/fpwork/${user}/docker_workspace/l1low
