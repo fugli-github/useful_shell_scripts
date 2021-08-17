@@ -1,16 +1,16 @@
 #!/bin/bash
 #set -exuo pipefail
 
-fileType=${1:-""}
+Type=${1:-""}
 
 display_help() {
     echo "
 ////////////////////////////////////////////////////////
-    Usage: $(basename $0) [fileType]
-    fileType : -c change 
-               -n new
-               -d delete
-               -a all
+    Usage: $(basename $0) [Type]
+    Type : ${bold}${magenta}	-c ${normal} changed 
+           ${bold}${blue}	-n ${normal} new
+           ${bold}${red}	-d ${normal} deleted
+           ${bold}${yellow}	-a ${normal} all
 ////////////////////////////////////////////////////////
     "
 }
@@ -57,17 +57,17 @@ echo "workspace is : $Dir"
 
 changedFiles=$(git status -s $DIR| awk '$1 ~/M/ {print $2}')
 echo "changed files:--------->"
-echo "${bold}${red}$changedFiles"
+echo "${bold}${magenta}$changedFiles"
 echo "${normal}============================================="
 
 deletedFiles=$(git status -s $DIR| awk '$1 ~/D/ {print $2}')
 echo "deleted files:--------->"
-echo "${bold}${magenta}$deletedFiles"
+echo "${bold}${red}$deletedFiles"
 echo "${normal}============================================="
 
 untrackedFiles=$(git status -s $DIR| awk '$1 !~/[MD]/ {print $2}')
 #echo "untrackedFiles:--------->"
-#echo "${bold}${yellow}$untrackedFiles"
+#echo "${bold}${blue}$untrackedFiles"
 #echo "${normal}============================================="
 #echo "============================================="
 
@@ -105,8 +105,8 @@ echo "${normal}============================================="
 
 # scp files to server
 user=$(whoami)
-#server=${user}@ouling46.emea.nsn-net.net
-server=${user}@10.157.99.37
+server=${user}@ouling45.emea.nsn-net.net
+#server=${user}@10.157.99.37
 workspace=/var/fpwork/${user}/docker_workspace/l1low
 
 
@@ -119,46 +119,51 @@ ScpAllFils() {
         scp $file ${server}:${workspace}/${file}    
     done
 
-    echo "login server and delete files"
     echo "===================================="
     for file in ${deletedFiles}; do 
         ssh -t ${server} "cd ${workspace}; rm ${file} " 
     done
 }
 
-if [[ "${fileType}" == "" ]] ; then
-    display_help
-    exit 0
-fi
 
-echo "${bold}${green}fileType is $fileType ${normal}"
+ApplyChangesToServer() {
 
-case $fileType in
-    "-c" )
-        for file in $changedFiles; do
-        scp $file ${server}:${workspace}/${file}
-        done
-        ;;
-    "-n" )
-        for file in ${newAddfile[@]}; do
-            scp $file ${server}:${workspace}/${file}    
-        done
-        ;;
-    "-d" )
-        echo "login server and delete files"
-        echo "===================================="
-        for file in ${deletedFiles}; do 
-            ssh -t ${server} "cd ${workspace}; rm ${file} " 
-        done
-        ;;
-    "-a" )
-        ScpAllFils
-        ;;
-    *)
-        for file in $*; do
-            scp $file ${server}:${workspace}/${file}
-        done
-        ;;
-esac
+	if [[ "${Type}" == "" ]] ; then
+		display_help
+	fi
+	
+	case $Type in
+		"-c" )
+			echo "scp all changed files to server:${server}"
+			for file in $changedFiles; do
+				scp $file ${server}:${workspace}/${file}
+			done
+			;;
+		"-n" )
+			echo "scp all new add files to server:${server}"
+			for file in ${newAddfile[@]}; do
+				scp $file ${server}:${workspace}/${file}    
+			done
+			;;
+		"-d" )
+			echo "login server:${server} and delete files"
+			echo "===================================="
+			for file in ${deletedFiles}; do 
+				ssh -t ${server} "cd ${workspace}; rm ${file} " 
+			done
+			;;
+		"-a" )
+			echo "apply all changes to server:${server}"
+			ScpAllFils
+			;;
+		*)
+			echo "scp spefic files to server:${server}"
+			for file in $*; do
+				scp $file ${server}:${workspace}/${file}
+			done
+			;;
+	esac	
 
+}
 
+ApplyChangesToServer
