@@ -2,7 +2,6 @@
 #set -exuo pipefail
 
 Type=${1:-""}
-SpecificFiles=$*
 
 display_help() {
     echo "
@@ -153,8 +152,8 @@ ApplyChangesToServer() {
 			ScpAllFils
 			;;
 		*)
-			echo "scp spefic file {$SpecificFiles}  to server:${server}"
-			for file in $SpecificFiles; do
+			echo "scp spefic file {$@}  to server:${server}"
+			for file in $@; do
 				scp $file ${server}:${workspace}/${file}
 			done
 			;;
@@ -167,10 +166,9 @@ Main() {
 if [[ "${Type}" == "" ]] ; then
 	display_help
 else
-	ApplyChangesToServer
+	ApplyChangesToServer $@
 fi
 
 }
 
-
-Main
+Main $@
